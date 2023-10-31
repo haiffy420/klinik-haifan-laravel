@@ -11,6 +11,7 @@ use App\Models\Doctor;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -85,17 +86,25 @@ class PrescriptionResource extends Resource
                                             ->get()
                                             ->pluck('name', 'id');
                                     })
+                                    ->disableOptionWhen(function ($value, $state, Get $get) {
+                                        return collect($get('../*.drug_id'))
+                                            ->reject(fn ($id) => $id === $state)
+                                            ->filter()
+                                            ->contains($value);
+                                    })
                                     ->native(false)
                                     ->searchable()
                                     ->preload()
+                                    ->hiddenOn(['view'])
                                     ->required(),
                                 Forms\Components\TextInput::make('quantity')
                                     ->label('Jumlah')
                                     ->required()
                                     ->numeric(),
                             ])
-                            ->columns(2)
-                            ->columnSpan(1)
+                            // ->columns(2)
+                            // ->columnSpan(1)
+                            ->grid(3)
                             ->itemLabel(function (array $state) {
                                 $drugId = $state['drug_id'] ?? null;
                                 if ($drugId) {
