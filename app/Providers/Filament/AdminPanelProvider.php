@@ -3,13 +3,13 @@
 namespace App\Providers\Filament;
 
 use App\Http\Middleware\VerifyIsAdmin;
+use App\Filament\Pages\Auth\EditProfile;
+use App\Filament\Pages\Auth\Register;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Navigation\NavigationGroup;
-use Filament\Navigation\NavigationItem;
 use Filament\Pages;
-use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
@@ -31,8 +31,9 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('')
             ->login()
-            ->registration()
-            ->profile()
+            ->registration(Register::class)
+            // ->passwordReset()
+            ->profile(EditProfile::class)
             ->favicon(asset('images/clinic.png'))
             // ->brandLogo(asset('images/clinic.png'))
             // ->brandLogoHeight('3rem')

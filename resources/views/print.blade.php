@@ -76,15 +76,15 @@
             @foreach ($prescription->prescribedDrugs->sortBy('id') as $item)
                 <tr>
                     <td>{{ $item->drugs->name }}</td>
-                    <td>Rp. {{ $item->drugs->price }}</td>
+                    <td>Rp. {{ number_format($item->drugs->price, 0, ',', '.') }}</td>
                     <td>{{ $item->quantity }}</td>
-                    <td>Rp. {{ $item->drugs->price * $item->quantity }}</td>
+                    <td>Rp. {{ number_format($item->drugs->price * $item->quantity, 0, ',', '.') }}</td>
                     @php $total += $item->drugs->price * $item->quantity; @endphp
                 </tr>
             @endforeach
             <tr>
                 <td colspan="3">Total</td>
-                <td>Rp. {{ $total }}</td>
+                <td>Rp. {{ number_format($total, 0, ',', '.') }}</td>
             </tr>
         </tbody>
     </table>

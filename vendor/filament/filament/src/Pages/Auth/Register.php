@@ -90,32 +90,6 @@ class Register extends SimplePage
 
         session()->regenerate();
 
-        if ($data['role_id'] == 2) {
-            $doctorData = [
-                'user_id' => $user->id,
-                'specialization' => $data['doctor']['specialization'],
-            ];
-
-            Doctor::create($doctorData);
-        }
-
-        if ($data['role_id'] == 3) {
-            $staffData = [
-                'user_id' => $user->id,
-            ];
-
-            Staff::create($staffData);
-        }
-
-        if ($data['role_id'] == 4) {
-            $patientData = [
-                'user_id' => $user->id,
-                'bpjs' => $data['patient']['bpjs'],
-            ];
-
-            Patient::create($patientData);
-        }
-
         return app(RegistrationResponse::class);
     }
 
@@ -134,64 +108,10 @@ class Register extends SimplePage
                 $this->makeForm()
                     ->schema([
                         $this->getNameFormComponent(),
-                        TextInput::make('address')
-                            ->label('Alamat')
-                            ->required()
-                            ->maxLength(255),
-                        DatePicker::make('date_of_birth')
-                            ->label('Tanggal Lahir')
-                            ->columnSpan(0.5)
-                            ->required(),
-                        TextInput::make('contact_number')
-                            ->label('Kontak')
-                            ->required()
-                            ->maxLength(255),
-                        Select::make('role_id')
-                            ->label('Role')
-                            ->options([
-                                1 => 'Admin',
-                                2 => 'Dokter',
-                                3 => 'Staff',
-                                4 => 'Pasien',
-                            ])
-                            ->required()
-                            ->native(false)
-                            ->live(),
-                        TextInput::make('doctor.specialization')
-                            ->label('Spesialisasi')
-                            ->visible(function (Get $get) {
-                                if ($get('role_id') == 2) {
-                                    return true;
-                                }
-                                return false;
-                            })
-                            ->disabled(function (Get $get) {
-                                if ($get('role_id') == 2) {
-                                    return false;
-                                }
-                                return true;
-                            })
-                            ->required(fn (\Filament\Forms\Get $get) => $get('role_id') == 2),
-                        TextInput::make('patient.bpjs')
-                            ->label('BPJS')
-                            ->visible(function (Get $get) {
-                                if ($get('role_id') == 4) {
-                                    return true;
-                                }
-                                return false;
-                            })
-                            ->disabled(function (Get $get) {
-                                if ($get('role_id') == 4) {
-                                    return false;
-                                }
-                                return true;
-                            })
-                            ->required(fn (\Filament\Forms\Get $get) => $get('role_id') == 4),
                         $this->getEmailFormComponent(),
                         $this->getPasswordFormComponent(),
                         $this->getPasswordConfirmationFormComponent(),
                     ])
-                    // ->columns(2)
                     ->statePath('data'),
             ),
         ];
@@ -225,7 +145,7 @@ class Register extends SimplePage
             ->rule(Password::default())
             ->dehydrateStateUsing(fn ($state) => Hash::make($state))
             ->same('passwordConfirmation')
-            ->validationAttribute('Minimal 8 Karakter.');
+            ->validationAttribute('Password');
     }
 
     protected function getPasswordConfirmationFormComponent(): Component

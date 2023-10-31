@@ -67,6 +67,26 @@ class PatientResource extends Resource
                     ->label('BPJS')
                     ->required()
                     ->maxLength(255),
+                Forms\Components\Fieldset::make('user_id')
+                    ->relationship('user', 'id')
+                    ->label('Foto Pasien')
+                    ->schema([
+                        Forms\Components\FileUpload::make('user.avatar')
+                            ->label('')
+                            ->directory('avatars')
+                            ->image()
+                            ->imageEditor()
+                            ->imageEditorAspectRatios([
+                                '1:1',
+                            ])
+                            ->minSize(1)
+                            ->imagePreviewHeight('200')
+                            // ->panelAspectRatio('1.5:1')
+                            ->maxSize(4096)
+                            ->required()
+                            ->visibility('private'),
+                    ]),
+
             ]);
     }
 
@@ -74,6 +94,11 @@ class PatientResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\ImageColumn::make('user.avatar')
+                    ->label('Foto')
+                    ->defaultImageUrl(url('avatars/default.png'))
+                    ->extraImgAttributes(['loading' => 'lazy'])
+                    ->circular(),
                 Tables\Columns\TextColumn::make('user.name')
                     ->label('Nama')
                     ->numeric()

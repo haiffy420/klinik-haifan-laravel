@@ -52,15 +52,19 @@ class DrugResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->label('Nama Obat')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('price')
+                    ->label('Harga')
                     ->money('idr')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('stock')
+                    ->label('Stok')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('expiration_date')
-                    ->date()
+                    ->label('Tanggal Kadaluarsa')
+                    ->date('d F Y')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()

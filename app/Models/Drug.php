@@ -13,6 +13,6 @@ class Drug extends Model
 
     public function prescribedDrugs(): BelongsToMany
     {
-        return $this->belongsToMany(PrescribedDrug::class, 'prescribed_drugs');
+        return $this->belongsToMany(PrescribedDrugs::class, 'prescribed_drugs');
     }
 }

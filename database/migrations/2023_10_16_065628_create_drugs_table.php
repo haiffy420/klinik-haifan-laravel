@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->integer('price');
             $table->integer('stock');
-            $table->date('expiration_date');
+            $table->date('expiration_date')->nullable();
             $table->timestamps();
         });
     }

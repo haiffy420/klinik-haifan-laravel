@@ -73,6 +73,11 @@ class DoctorResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\ImageColumn::make('user.avatar')
+                    ->label('Foto')
+                    ->defaultImageUrl(url('avatars/default.png'))
+                    ->extraImgAttributes(['loading' => 'lazy'])
+                    ->circular(),
                 Tables\Columns\TextColumn::make('user.name')
                     ->label('Nama Dokter')
                     ->numeric()

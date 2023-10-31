@@ -47,4 +47,16 @@ class Prescription extends Model
     {
         return $this->staff->user->name;
     }
+
+    public function calculateEarnings()
+    {
+        // Get the related PrescribedDrugs and calculate earnings
+        return $this->prescribedDrugs->sum(function ($prescribedDrug) {
+            // Access related Drug model
+            $drug = $prescribedDrug->drug;
+
+            // Calculate earnings for this PrescribedDrug
+            return $drug->price * $prescribedDrug->quantity;
+        });
+    }
 }

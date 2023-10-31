@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
     {
         // \App\Models\User::factory(10)->create();
         $this->call(RoleSeeder::class);
+        $this->call(DrugSeeder::class);
 
         \App\Models\User::factory()->create([
             'name' => 'Haifan',

@@ -2,18 +2,15 @@
 
 namespace App\Filament\Resources;
 
+use App\Tables\Columns\EarningsColumn;
 use App\Filament\Resources\PrescriptionResource\Pages;
-use App\Filament\Resources\PrescriptionResource\RelationManagers;
-use App\Filament\Resources\PrescriptionResource\RelationManagers\PrescribedDrugsRelationManager;
 use App\Models\Drug;
 use App\Models\Patient;
 use App\Models\Prescription;
 use App\Models\Doctor;
-use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -29,7 +26,11 @@ class PrescriptionResource extends Resource
 
     public static function getModelLabel(): string
     {
-        if (auth()->user()->role_id == 3) {
+        if (auth()->user()->role_id == 1) {
+            return 'Transaksi';
+        } else if (auth()->user()->role_id == 2) {
+            return 'Resep';
+        } else if (auth()->user()->role_id == 3) {
             return 'Invoice';
         }
         return 'Resep Dokter';
@@ -98,7 +99,6 @@ class PrescriptionResource extends Resource
                             ->itemLabel(function (array $state) {
                                 $drugId = $state['drug_id'] ?? null;
                                 if ($drugId) {
-                                    // Fetch the drug name based on the drug ID
                                     $drug = Drug::find($drugId);
                                     return $drug ? $drug->name : null;
                                 }
@@ -111,7 +111,17 @@ class PrescriptionResource extends Resource
 
     public static function table(Table $table): Table
     {
+        $query = Prescription::query();
+
+        if (auth()->user()->role_id == 2) {
+            $query->where('doctor_id', auth()->user()->doctor->id);
+        }
+        if (auth()->user()->role_id == 4) {
+            $query->where('patient_id', auth()->user()->patient->id);
+        }
+
         return $table
+            ->query($query)
             ->columns([
                 Tables\Columns\TextColumn::make('doctor.user.name')
                     ->label('Nama Dokter')
@@ -122,7 +132,13 @@ class PrescriptionResource extends Resource
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('prescription_date')
-                    ->date()
+                    ->label('Tanggal')
+                    ->date('d F Y')
+                    ->sortable(),
+                EarningsColumn::make('Pendapatan')
+                    ->label(function () {
+                        return auth()->user()->role_id == 1 ? 'Pendapatan' : 'Total';
+                    })
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
