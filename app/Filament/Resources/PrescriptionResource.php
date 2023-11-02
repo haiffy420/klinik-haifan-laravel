@@ -12,6 +12,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -82,7 +83,7 @@ class PrescriptionResource extends Resource
                                 Forms\Components\Select::make('drug_id')
                                     ->label('Nama Obat')
                                     ->options(function () {
-                                        return Drug::where('expiration_date', '>', now())
+                                        return Drug::where('expiration_date', '>', now())->where('stock', '>', 0)
                                             ->get()
                                             ->pluck('name', 'id');
                                     })
@@ -95,16 +96,28 @@ class PrescriptionResource extends Resource
                                     ->native(false)
                                     ->searchable()
                                     ->preload()
+                                    ->live()
                                     ->hiddenOn(['view'])
                                     ->required(),
+                                Forms\Components\Placeholder::make('view-stock')
+                                    ->label('')
+                                    ->visible(static function (Get $get) {
+                                        return $get('drug_id') != null;
+                                    })
+                                    ->content(static function (Get $get) {
+                                        $stock = 'Stok Obat: ' . Drug::query()->where('id', $get('drug_id'))->pluck('stock')->first();
+                                        return $stock;
+                                    })
+                                    ->hiddenOn(['view']),
                                 Forms\Components\TextInput::make('quantity')
                                     ->label('Jumlah')
+                                    ->maxValue(static function (Get $get) {
+                                        $stock = Drug::query()->where('id', $get('drug_id'))->pluck('stock')->first();
+                                        return $stock;
+                                    })
                                     ->required()
                                     ->numeric(),
                             ])
-                            // ->columns(2)
-                            // ->columnSpan(1)
-                            ->grid(3)
                             ->itemLabel(function (array $state) {
                                 $drugId = $state['drug_id'] ?? null;
                                 if ($drugId) {
@@ -112,7 +125,8 @@ class PrescriptionResource extends Resource
                                     return $drug ? $drug->name : null;
                                 }
                                 return null;
-                            }),
+                            })
+                            ->grid(3),
                     ])->columns(1)
                     ->visibleOn(['create', 'view', 'edit']),
             ]);
@@ -165,7 +179,7 @@ class PrescriptionResource extends Resource
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('Print')
-                    // ->button()
+                    ->button()
                     ->color('success')
                     ->label('Cetak Invoice')
                     ->requiresConfirmation()
