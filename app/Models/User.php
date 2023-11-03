@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -49,6 +51,27 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public static function booted(): void
+    {
+        self::deleting(function (User $record) {
+            if ($record->avatar == 'avatars/default.png') {
+                return;
+            }
+
+            $filePath = $record->avatar;
+
+            if (Storage::disk('public')->exists($filePath)) {
+                // Try to delete the file
+                $deleted = Storage::disk('public')->delete($filePath);
+
+                if (!$deleted) {
+                    // Log an error or throw an exception
+                    Log::error("Failed to delete file: $filePath");
+                }
+            }
+        });
+    }
 
     public function role(): BelongsTo
     {

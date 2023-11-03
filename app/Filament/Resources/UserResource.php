@@ -137,7 +137,7 @@ class UserResource extends Resource
             ->columns([
                 Tables\Columns\ImageColumn::make('avatar')
                     ->label('Foto')
-                    ->defaultImageUrl(url('avatars/default.png'))
+                    ->defaultImageUrl(url('images/default.png'))
                     ->extraImgAttributes(['loading' => 'lazy'])
                     ->circular(),
                 Tables\Columns\TextColumn::make('name')

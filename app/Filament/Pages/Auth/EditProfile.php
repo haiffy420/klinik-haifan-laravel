@@ -84,7 +84,7 @@ class EditProfile extends BaseEditProfile
                     ->panelAspectRatio('1.5:1')
                     ->minSize(1)
                     ->maxSize(4096)
-                    ->required()
+                    // ->required()
                     ->visibility('private'),
             ]);
     }
