@@ -35,7 +35,7 @@ class DrugChart extends ChartWidget
                     'data' => $data->pluck('transactions'),
                 ],
             ],
-            'labels' => $data->pluck('prescription_date')->map(function ($date) {
+            'labels' => $data->pluck('date')->map(function ($date) {
                 return Carbon::parse($date)->format('d F');
             }),
         ];
