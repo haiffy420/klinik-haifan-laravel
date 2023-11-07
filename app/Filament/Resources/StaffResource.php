@@ -75,7 +75,7 @@ class StaffResource extends Resource
             ->columns([
                 Tables\Columns\ImageColumn::make('user.avatar')
                     ->label('Foto')
-                    ->defaultImageUrl(url('avatars/default.png'))
+                    ->defaultImageUrl(url('images/default.png'))
                     ->extraImgAttributes(['loading' => 'lazy'])
                     ->circular(),
                 Tables\Columns\TextColumn::make('user.name')
@@ -108,8 +108,11 @@ class StaffResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ])
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

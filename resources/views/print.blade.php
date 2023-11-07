@@ -123,6 +123,23 @@
             <td>{{ $prescription->doctor->user->contact_number }}</td>
         </tr>
     </table>
+
+    <table width="100%" border="0" style="margin:5px 0">
+        <tr>
+            <td>
+                <h4 style="margin-bottom: 0">Informasi Staff:</h4>
+            </td>
+        </tr>
+        <tr>
+            <td>{{ $prescription->staff->user->name }}</td>
+        </tr>
+        <tr>
+            <td>{{ $prescription->staff->user->email }}</td>
+        </tr>
+        <tr>
+            <td>{{ $prescription->staff->user->contact_number }}</td>
+        </tr>
+    </table>
     {{-- <table width="100%" border="0" style="margin:5px 0">
         <tr>
             <td colspan="3">

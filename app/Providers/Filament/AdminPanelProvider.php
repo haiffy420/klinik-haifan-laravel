@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\AvatarProviders\CustomAvatarsProvider;
 use App\Http\Middleware\VerifyIsAdmin;
 use App\Filament\Pages\Auth\EditProfile;
 use App\Filament\Pages\Auth\Register;
@@ -74,5 +75,6 @@ class AdminPanelProvider extends PanelProvider
             ->navigationGroups([
                 NavigationGroup::make('Pengguna')
             ]);
+        // ->defaultAvatarProvider(CustomAvatarsProvider::class);
     }
 }

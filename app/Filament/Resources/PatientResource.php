@@ -71,7 +71,7 @@ class PatientResource extends Resource
                     ->relationship('user', 'id')
                     ->label('Foto Pasien')
                     ->schema([
-                        Forms\Components\FileUpload::make('user.avatar')
+                        Forms\Components\FileUpload::make('avatar')
                             ->label('')
                             ->directory('avatars')
                             ->image()
@@ -96,7 +96,7 @@ class PatientResource extends Resource
             ->columns([
                 Tables\Columns\ImageColumn::make('user.avatar')
                     ->label('Foto')
-                    ->defaultImageUrl(url('avatars/default.png'))
+                    ->defaultImageUrl(url('images/default.png'))
                     ->extraImgAttributes(['loading' => 'lazy'])
                     ->circular(),
                 Tables\Columns\TextColumn::make('user.name')
@@ -130,8 +130,11 @@ class PatientResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ])
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

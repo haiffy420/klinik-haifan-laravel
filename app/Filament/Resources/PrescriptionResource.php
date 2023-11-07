@@ -8,11 +8,16 @@ use App\Models\Drug;
 use App\Models\Patient;
 use App\Models\Prescription;
 use App\Models\Doctor;
+use App\Models\Staff;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
+use Filament\Infolists\Components\RepeatableEntry;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -44,6 +49,26 @@ class PrescriptionResource extends Resource
             ->schema([
                 Forms\Components\Section::make()
                     ->schema([
+                        Forms\Components\Select::make('staff_id')
+                            ->label('Nama Staff')
+                            ->options(
+                                function () {
+                                    return Staff::query()
+                                        ->get()
+                                        ->pluck('user.name', 'id');
+                                }
+                            )
+                            ->default(function () {
+                                if (auth()->user()->role_id === 3) {
+                                    return auth()->user()->staff->id;
+                                }
+                            })
+                            ->disabled(auth()->user()->role_id === 3)
+                            ->dehydrated()
+                            ->required()
+                            ->native(false)
+                            ->live()
+                            ->searchable(),
                         Forms\Components\Select::make('doctor_id')
                             ->label('Nama Dokter')
                             ->options(
@@ -146,8 +171,8 @@ class PrescriptionResource extends Resource
         return $table
             ->query($query)
             ->columns([
-                Tables\Columns\TextColumn::make('doctor.user.name')
-                    ->label('Nama Dokter')
+                Tables\Columns\TextColumn::make('staff.user.name')
+                    ->label('Nama Staff')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('patient.user.name')
@@ -172,12 +197,13 @@ class PrescriptionResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->defaultSort('prescription_date', 'desc')
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
                 Tables\Actions\Action::make('Print')
                     ->button()
                     ->color('success')
@@ -194,6 +220,37 @@ class PrescriptionResource extends Resource
             ]);
     }
 
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Section::make()
+                    ->schema([
+                        TextEntry::make('doctor.user.name')
+                            ->label('Nama Dokter'),
+                        TextEntry::make('patient.user.name')
+                            ->label('Nama Pasien'),
+                        TextEntry::make('prescription_date')
+                            ->label('Tanggal')
+                            ->date('d F Y'),
+                    ])
+                    ->columns(3),
+                Section::make('Obat')
+                    ->schema([
+                        RepeatableEntry::make('prescribedDrugs')
+                            ->label('')
+                            ->schema([
+                                TextEntry::make('drugs.name')
+                                    ->label('Nama Obat'),
+                                TextEntry::make('quantity')
+                                    ->label('Jumlah'),
+                            ])
+                            ->columns(2)
+                            ->grid(3),
+                    ])->columns(1),
+            ]);
+    }
+
     public static function getRelations(): array
     {
         return [];
@@ -204,7 +261,7 @@ class PrescriptionResource extends Resource
         return [
             'index' => Pages\ListPrescriptions::route('/'),
             'create' => Pages\CreatePrescription::route('/create'),
-            'view' => Pages\ViewPrescription::route('/{record}'),
+            // 'view' => Pages\ViewPrescription::route('/{record}'),
             'edit' => Pages\EditPrescription::route('/{record}/edit'),
         ];
     }
@@ -212,8 +269,8 @@ class PrescriptionResource extends Resource
     public static function printPrescription(Prescription $prescription)
     {
         $prescriptionDate   = $prescription->prescription_date;
-        $doctorName          = str($prescription->doctor->user->name)->replace(' ', '')->headline();
-        $fileName           = "Invoice_{$prescriptionDate}_{$doctorName}.pdf";
+        $patientName          = str($prescription->patient->user->name)->replace(' ', '')->headline();
+        $fileName           = "Invoice_{$prescriptionDate}_{$patientName}.pdf";
         $total              = 0;
         $pdf                = Pdf::loadView('print', compact('prescription', 'fileName', 'total'));
 
