@@ -21,8 +21,8 @@ class UserOverview extends BaseWidget
                 ->descriptionIcon('heroicon-m-arrow-trending-up')
                 ->chart([7, 2, 10, 60, 15, 4, 40])
                 ->color('success'),
-            Stat::make('Staff', User::query()->where('role_id', 3)->count())
-                ->description('Total staff')
+            Stat::make('Apoteker', User::query()->where('role_id', 3)->count())
+                ->description('Total apoteker')
                 ->descriptionIcon('heroicon-m-arrow-trending-up')
                 ->chart([7, 2, 10, 60, 15, 4, 40])
                 ->color('success'),

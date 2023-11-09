@@ -24,6 +24,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Carbon;
 
 class PrescriptionResource extends Resource
 {
@@ -50,7 +51,7 @@ class PrescriptionResource extends Resource
                 Forms\Components\Section::make()
                     ->schema([
                         Forms\Components\Select::make('staff_id')
-                            ->label('Nama Staff')
+                            ->label('Nama Apoteker')
                             ->options(
                                 function () {
                                     return Staff::query()
@@ -97,6 +98,7 @@ class PrescriptionResource extends Resource
                             ->searchable(),
                         Forms\Components\DatePicker::make('prescription_date')
                             ->label('Tanggal')
+                            ->default(Carbon::now()->format('d-m-Y'))
                             ->required(),
                     ])->columns(2),
                 Forms\Components\Section::make('Obat')
@@ -172,7 +174,7 @@ class PrescriptionResource extends Resource
             ->query($query)
             ->columns([
                 Tables\Columns\TextColumn::make('staff.user.name')
-                    ->label('Nama Staff')
+                    ->label('Nama Apoteker')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('patient.user.name')
@@ -202,8 +204,6 @@ class PrescriptionResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
                 Tables\Actions\Action::make('Print')
                     ->button()
                     ->color('success')
@@ -212,6 +212,18 @@ class PrescriptionResource extends Resource
                     ->modalIcon('heroicon-o-printer')
                     ->icon('heroicon-o-printer')
                     ->action(fn (Prescription $record) => PrescriptionResource::printPrescription($record)),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                    Tables\Actions\Action::make('Print')
+                        ->color('success')
+                        ->label('Cetak Invoice')
+                        ->requiresConfirmation()
+                        ->modalIcon('heroicon-o-printer')
+                        ->icon('heroicon-o-printer')
+                        ->action(fn (Prescription $record) => PrescriptionResource::printPrescription($record)),
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

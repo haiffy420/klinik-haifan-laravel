@@ -3,6 +3,8 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use Filament\Models\Contracts\HasAvatar;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -12,7 +14,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
+class User extends Authenticatable implements HasAvatar
 {
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -71,6 +73,13 @@ class User extends Authenticatable
                 }
             }
         });
+    }
+
+    public function getFilamentAvatarUrl(): ?string
+    {
+        $avatar = auth()->user()->avatar;
+        // return 'http://127.0.0.1:8000/storage/' . $avatar;
+        return 'https://klinik.haifan-tribuwono.my.id//storage/' . $avatar;
     }
 
     public function role(): BelongsTo

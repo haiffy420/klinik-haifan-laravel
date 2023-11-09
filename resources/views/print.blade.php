@@ -127,7 +127,7 @@
     <table width="100%" border="0" style="margin:5px 0">
         <tr>
             <td>
-                <h4 style="margin-bottom: 0">Informasi Staff:</h4>
+                <h4 style="margin-bottom: 0">Informasi Apoteker:</h4>
             </td>
         </tr>
         <tr>

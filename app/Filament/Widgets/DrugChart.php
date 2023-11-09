@@ -11,7 +11,12 @@ use Flowframe\Trend\TrendValue;
 
 class DrugChart extends ChartWidget
 {
-    protected static ?string $heading = 'Transaksi';
+    protected static ?string $heading = null;
+
+    public function __construct()
+    {
+        self::$heading = 'Transaksi Bulan ' . now()->format('F');
+    }
 
     protected static string $color = 'info';
 
@@ -19,27 +24,54 @@ class DrugChart extends ChartWidget
 
     protected function getData(): array
     {
-        $data = Prescription::query()
-            ->selectRaw('DATE(prescriptions.prescription_date) as date, COUNT(prescriptions.id) as transactions')
-            ->whereBetween('prescription_date', [
-                now()->startOfMonth(),
-                now()->endOfMonth(),
-            ])
+        // Calculate the start and end dates for the current month
+        $startDate = now()->startOfMonth();
+        $endDate = now();
+
+        // Query for the data within the current month
+        $data = Prescription::selectRaw('DATE(prescriptions.prescription_date) as date, COUNT(prescriptions.id) as transactions')
+            ->whereBetween('prescription_date', [$startDate, $endDate])
             ->groupBy('date')
             ->get();
+
+        // Generate an array of dates for the current month
+        $dateRange = [];
+        $currentDate = $startDate->copy();
+
+        while ($currentDate <= $endDate) {
+            $dateRange[] = $currentDate->toDateString();
+            $currentDate->addDay(); // Increment by one day
+        }
+
+        // Initialize an array to store the transactions data
+        $transactionsData = [];
+
+        // Loop through the date range and match data if available
+        foreach ($dateRange as $date) {
+            $matchingData = $data->where('date', $date)->first();
+
+            if ($matchingData) {
+                $transactionsData[] = $matchingData->transactions;
+            } else {
+                $transactionsData[] = 0; // If no data available for a date, set transactions to 0
+            }
+        }
 
         return [
             'datasets' => [
                 [
                     'label' => 'Transaksi',
-                    'data' => $data->pluck('transactions'),
+                    'data' => $transactionsData,
+                    'fill' => true,
+                    'backgroundColor' => 'rgba(34, 153, 221, 0.2)',
                 ],
             ],
-            'labels' => $data->pluck('date')->map(function ($date) {
-                return Carbon::parse($date)->format('d F');
-            }),
+            'labels' => array_map(function ($date) {
+                return Carbon::parse($date)->format('d');
+            }, $dateRange),
         ];
     }
+
 
     protected function getOptions(): RawJs
     {
@@ -51,6 +83,19 @@ class DrugChart extends ChartWidget
                         precision: 0,
                     },
                 },
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        title: function(tooltipItems, data) {
+                            const date = tooltipItems[0].label
+                            return 'Tanggal: ' + date + ' ' + new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+                        },
+                    },
+                },
+                legend: {
+                    display: false,
+                }
             },
         }
     JS);

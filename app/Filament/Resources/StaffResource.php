@@ -27,7 +27,7 @@ class StaffResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-user';
 
-    protected static ?string $modelLabel = 'Staff';
+    protected static ?string $modelLabel = 'Apoteker';
 
     protected static ?string $navigationGroup = 'Pengguna';
 

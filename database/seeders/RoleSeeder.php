@@ -12,9 +12,9 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
-        Role::create(['name' => 'admin']);
-        Role::create(['name' => 'doctor']);
-        Role::create(['name' => 'staff']);
-        Role::create(['name' => 'patient']);
+        Role::create(['name' => 'Admin']);
+        Role::create(['name' => 'Dokter']);
+        Role::create(['name' => 'Apoteker']);
+        Role::create(['name' => 'Pasien']);
     }
 }
